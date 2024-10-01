@@ -8,6 +8,12 @@ services:
       - .:/app
     working_dir: /app
     command: go run cmd/main.go
+    environment:
+      - DB_USERNAME=user
+      - DB_PASSWORD=userpassword
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=elabram
     ports:
       - "8080:8080"
     networks:
