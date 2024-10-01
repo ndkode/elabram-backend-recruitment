@@ -11,15 +11,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CategoryController struct {
-	Service *services.CategoryService
+type categoryController struct {
+	Service services.CategoryService
 }
 
-func NewCategoryController(service *services.CategoryService) *CategoryController {
-	return &CategoryController{Service: service}
+type CategoryController interface {
+	CreateCategory(ctx *gin.Context)
+	GetAllCategories(ctx *gin.Context)
+	GetCategoryByID(ctx *gin.Context)
 }
 
-func (c *CategoryController) CreateCategory(ctx *gin.Context) {
+func NewCategoryController(service services.CategoryService) *categoryController {
+	return &categoryController{Service: service}
+}
+
+func (c *categoryController) CreateCategory(ctx *gin.Context) {
 	var category models.Category
 	if err := ctx.ShouldBindJSON(&category); err != nil {
 		reason := utils.HandleUnmarshalTypeError(err)
@@ -27,7 +33,7 @@ func (c *CategoryController) CreateCategory(ctx *gin.Context) {
 		return
 	}
 
-	// Validate product fields
+	// Validate category fields
 	validationErrors := utils.ValidateStruct(category)
 	if validationErrors != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
@@ -42,7 +48,7 @@ func (c *CategoryController) CreateCategory(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, category)
 }
 
-func (c *CategoryController) GetAllCategorys(ctx *gin.Context) {
+func (c *categoryController) GetAllCategories(ctx *gin.Context) {
 	categories, err := c.Service.GetAllCategories()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -51,7 +57,7 @@ func (c *CategoryController) GetAllCategorys(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, categories)
 }
 
-func (c *CategoryController) GetCategoryByID(ctx *gin.Context) {
+func (c *categoryController) GetCategoryByID(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	category, err := c.Service.GetCategoryByID(uint(id))
 	if err != nil {

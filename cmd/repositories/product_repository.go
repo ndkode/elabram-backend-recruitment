@@ -10,25 +10,34 @@ import (
 	"gorm.io/gorm"
 )
 
-type ProductRepository struct {
+type productRepository struct {
 	DB *gorm.DB
 }
 
-func NewProductRepository(db *gorm.DB) *ProductRepository {
-	return &ProductRepository{DB: db}
+type ProductRepository interface {
+	CreateProduct(product *models.Product) error
+	GetAllProducts() ([]models.Product, error)
+	GetAllProductsWithPagination(ctx *gin.Context) (models.ProductsPageable, error)
+	GetProductByID(id uint) (models.Product, error)
+	UpdateProduct(product *models.Product) (models.Product, error)
+	DeleteProduct(id uint) error
 }
 
-func (r *ProductRepository) CreateProduct(product *models.Product) error {
+func NewProductRepository(db *gorm.DB) *productRepository {
+	return &productRepository{DB: db}
+}
+
+func (r *productRepository) CreateProduct(product *models.Product) error {
 	return r.DB.Create(product).Error
 }
 
-func (r *ProductRepository) GetAllProducts() ([]models.Product, error) {
+func (r *productRepository) GetAllProducts() ([]models.Product, error) {
 	var products []models.Product
 	err := r.DB.Preload("Category").Find(&products).Error
 	return products, err
 }
 
-func (r *ProductRepository) GetAllProductsWithPagination(ctx *gin.Context) (models.ProductsPageable, error) {
+func (r *productRepository) GetAllProductsWithPagination(ctx *gin.Context) (models.ProductsPageable, error) {
 	db, page, pageSize := applyPagination(ctx, r.DB)
 
 	productsPageable := models.ProductsPageable{}
@@ -41,20 +50,20 @@ func (r *ProductRepository) GetAllProductsWithPagination(ctx *gin.Context) (mode
 	return productsPageable, err
 }
 
-func (r *ProductRepository) GetProductByID(id uint) (models.Product, error) {
+func (r *productRepository) GetProductByID(id uint) (models.Product, error) {
 	var product models.Product
 	err := r.DB.Preload("Category").First(&product, id).Error
 	return product, err
 }
 
-func (r *ProductRepository) UpdateProduct(product *models.Product) (models.Product, error) {
+func (r *productRepository) UpdateProduct(product *models.Product) (models.Product, error) {
 	updatedProduct := models.Product{}
 	product.Category = nil
 	err := r.DB.Where("id = ?", product.ID).Updates(&product).Preload("Category").First(&updatedProduct).Error
 	return updatedProduct, err
 }
 
-func (r *ProductRepository) DeleteProduct(id uint) error {
+func (r *productRepository) DeleteProduct(id uint) error {
 	return r.DB.Delete(&models.Product{}, id).Error
 }
 

@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ProductRoutes(router *gin.Engine, productController *controllers.ProductController) {
+func ProductRoutes(router *gin.Engine, productController controllers.ProductController) {
 	productRoutes := router.Group("/products")
 	{
 		productRoutes.POST("", productController.CreateProduct)

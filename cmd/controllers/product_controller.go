@@ -11,15 +11,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProductController struct {
-	Service *services.ProductService
+type productController struct {
+	Service services.ProductService
 }
 
-func NewProductController(service *services.ProductService) *ProductController {
-	return &ProductController{Service: service}
+type ProductController interface {
+	CreateProduct(ctx *gin.Context)
+	GetAllProducts(ctx *gin.Context)
+	GetAllProductsWithPagination(ctx *gin.Context)
+	GetProductByID(ctx *gin.Context)
+	UpdateProduct(ctx *gin.Context)
+	DeleteProduct(ctx *gin.Context)
 }
 
-func (c *ProductController) CreateProduct(ctx *gin.Context) {
+func NewProductController(service services.ProductService) *productController {
+	return &productController{Service: service}
+}
+
+func (c *productController) CreateProduct(ctx *gin.Context) {
 	var product models.Product
 	if err := ctx.ShouldBindJSON(&product); err != nil {
 		reason := utils.HandleUnmarshalTypeError(err)
@@ -42,7 +51,7 @@ func (c *ProductController) CreateProduct(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, product)
 }
 
-func (c *ProductController) GetAllProducts(ctx *gin.Context) {
+func (c *productController) GetAllProducts(ctx *gin.Context) {
 	products, err := c.Service.GetAllProducts()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -51,7 +60,7 @@ func (c *ProductController) GetAllProducts(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, products)
 }
 
-func (c *ProductController) GetAllProductsWithPagination(ctx *gin.Context) {
+func (c *productController) GetAllProductsWithPagination(ctx *gin.Context) {
 	productsWithPagination, err := c.Service.GetAllProductsWithPagination(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -60,7 +69,7 @@ func (c *ProductController) GetAllProductsWithPagination(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, productsWithPagination)
 }
 
-func (c *ProductController) GetProductByID(ctx *gin.Context) {
+func (c *productController) GetProductByID(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	product, err := c.Service.GetProductByID(uint(id))
 	if err != nil {
@@ -70,7 +79,7 @@ func (c *ProductController) GetProductByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, product)
 }
 
-func (c *ProductController) UpdateProduct(ctx *gin.Context) {
+func (c *productController) UpdateProduct(ctx *gin.Context) {
 	var updateProduct models.Product
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	if err := ctx.ShouldBindJSON(&updateProduct); err != nil {
@@ -83,7 +92,7 @@ func (c *ProductController) UpdateProduct(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	// update only specific fields
+	// update only specific product fields, to prevent accidental changes to other fields
 	if updateProduct.Name != "" {
 		product.Name = updateProduct.Name
 	}
@@ -119,7 +128,7 @@ func (c *ProductController) UpdateProduct(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, updatedProduct)
 }
 
-func (c *ProductController) DeleteProduct(ctx *gin.Context) {
+func (c *productController) DeleteProduct(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	if err := c.Service.DeleteProduct(uint(id)); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
