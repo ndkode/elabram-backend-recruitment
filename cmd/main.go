@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/ndkode/elabram-backend-recruitment/cmd/configs"
 	"github.com/ndkode/elabram-backend-recruitment/cmd/routes"
@@ -8,6 +9,9 @@ import (
 
 func main() {
 	r := gin.Default()
+
+	// Gzip Compression
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	// Connect to Database
 	configs.ConnectDB()
