@@ -20,4 +20,9 @@ func SetupRouter(r *gin.Engine) {
 	categoryService := services.NewCategoryService(categoryRepo)
 	categoryController := controllers.NewCategoryController(categoryService)
 	CategoryRoutes(r, categoryController)
+
+	reportRepo := repositories.NewReportRepository(configs.DB)
+	reportService := services.NewReportService(reportRepo)
+	reportController := controllers.NewReportController(reportService)
+	ReportRoutes(r, reportController)
 }
