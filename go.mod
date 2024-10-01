@@ -1,4 +1,4 @@
-module elabram_backend
+module github.com/ndkode/elabram-backend-recruitment
 
 go 1.23.0
 
