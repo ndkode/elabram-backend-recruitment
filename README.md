@@ -32,6 +32,17 @@ The base URL for the API is http://localhost:8080.
 - `GET /categories/:id`: Retrieve a category by ID
 - `GET /reports/products`: Retrieve a report of all products for dashboards
 
+## Postman Collection
+
+To easily test the API endpoints, a Postman collection has been provided.
+
+### How to Use the Postman Collection
+
+1. Download the Postman collection file: [Postman Collection](./Elabram Backend API.postman_collection.json)
+2. Open Postman.
+3. Import the collection by selecting `File -> Import` in Postman and uploading the `Elabram Backend API.postman_collection.json` file.
+4. Set the `{{baseUrl}}` variable in Postman to point to your local or deployed API, e.g., `http://localhost:8080`.
+5. You can now test all the API endpoints using the imported collection.
 
 ### Complex MySQL Query Optimization
 
