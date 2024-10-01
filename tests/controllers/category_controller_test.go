@@ -110,7 +110,7 @@ func TestGetAllCategoriesRoute(t *testing.T) {
 
 	// Set up the controller with the mocked service
 	categoryController := controllers.NewCategoryController(mockCategoryService)
-	r.GET("/categories", categoryController.GetCategoryByID)
+	r.GET("/categories", categoryController.GetAllCategories)
 
 	// Create a new request
 	req, _ := http.NewRequest(http.MethodGet, "/categories", nil)
